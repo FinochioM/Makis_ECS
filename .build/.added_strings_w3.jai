@@ -9,61 +9,42 @@ DEBUG :: false;
 // String added via add_build_string() from A:/Desarrollos/makis_ecs/build.jai:30.
 //
 #import "Math";
+#import "Basic";
 
 #insert #run init_recs();
 
-Print    :: #type,distinct void;
-Position :: #type,distinct Vector2;
-Velocity :: #type,distinct Vector2;
+Health   :: #type,distinct float32;
 
-#insert #run init_components(Print, Position, Velocity);
+#insert #run init_components(Health);
 
-printing_system :: inline (e: Entity) {
-    pos := entity_get(e, _Position);
-    print("%\n", pos);
+EVENT_DEATH :: 1;
+EVENT_DAMAGE :: 2;
+
+on_entity_death :: (entity: Entity, data: *void) -> bool {
+    print("Entity % died!\n", entity.index);
+    return true;
 }
 
-movement_system :: inline (e: Entity) {
-    pos := entity_get(e, _Position);
-    vel := entity_get(e, _Velocity);
-    pos.x += vel.x;
-    pos.y += vel.y;
-    entity_update(e, pos);
+on_entity_damaged :: (entity: Entity, data: *void) -> bool {
+    print("Entity % took damage!\n", entity.index);
+    return true;
 }
 
 main :: () {
     init_ecs();
-    e := create_entity();
 
-    entity_add(e, Position.{});
-    entity_add(e, Velocity.{1, 0});
-    entity_add(e, .Print);
+    subscribe(EVENT_DEATH, on_entity_death);
+    subscribe(EVENT_DAMAGE, on_entity_damaged);
 
-    e = create_entity();
+    entity := create_entity();
+    entity_add(entity, .Health);
 
-    entity_add(e, Position.{});
-    entity_add(e, Velocity.{0, 1});
-    entity_add(e, .Print);
-
-    e = create_entity();
-
-    entity_add(e, Position.{});
-    entity_add(e, .Print);
-
-    for 0..3 {
-        print("frame %:\n", it);
-        run_system(.Position | .Velocity, movement_system);
-        run_system(.Position | .Print, printing_system);
-        print("\n");
-    }
-
-    for iter_entities(.Position) {
-        entity_update(it, Position.{});
-    }
+    emit(EVENT_DAMAGE, entity);
+    emit(EVENT_DEATH, entity);
 }
 
 //
-// #insert text. Generated from A:/Desarrollos/makis_ecs/.build/.added_strings_w3.jai:13.
+// #insert text. Generated from A:/Desarrollos/makis_ecs/.build/.added_strings_w3.jai:14.
 //
 MAX_ENTITIES   :: 1000;
 MAX_COMPONENTS :: 30;
@@ -79,67 +60,38 @@ init_ecs :: () {
     entity_count = 0;
     for * entities_buffer it.generation = 0;
     init_groups();
+    init_event_system();
 }
 
 #scope_export
 
 //
-// #insert text. Generated from A:/Desarrollos/makis_ecs/src/mecs.jai:119.
+// #insert text. Generated from A:/Desarrollos/makis_ecs/src/mecs.jai:98.
 //
-sizes : [3]u32 : .[
-	size_of(Print),
-	size_of(Position),
-	size_of(Velocity),
+sizes : [1]u32 : .[
+	size_of(Health),
 ];
 
 //
-// #insert text. Generated from A:/Desarrollos/makis_ecs/.build/.added_strings_w3.jai:19.
+// #insert text. Generated from A:/Desarrollos/makis_ecs/.build/.added_strings_w3.jai:18.
 //
 Component :: enum_flags u32 {
-	Print;
-	Position;
-	Velocity;
+	Health;
 }
 
-_Print :: Print;
-_Position :: #run -> Position { x: Position; return x; };
-_Velocity :: #run -> Velocity { x: Velocity; return x; };
+_Health :: #run -> Health { x: Health; return x; };
 
-entity_get :: inline (entity: Entity, $component: Print) -> Print {
+entity_get :: inline (entity: Entity, $component: Health) -> Health {
 	#if RECS_ASSERT assert(entity.index < MAX_ENTITIES);
-	#if RECS_ASSERT assert(xx entities[entity.index].components & .Print, "entity doesnt have Print");
-	ret: Print;
-	return ret;
-}
-entity_get :: inline (entity: Entity, $component: Position) -> Position {
-	#if RECS_ASSERT assert(entity.index < MAX_ENTITIES);
-	#if RECS_ASSERT assert(xx entities[entity.index].components & .Position, "entity doesnt have Position");
-	return Position_Buff[entity.index];
-}
-entity_get :: inline (entity: Entity, $component: Velocity) -> Velocity {
-	#if RECS_ASSERT assert(entity.index < MAX_ENTITIES);
-	#if RECS_ASSERT assert(xx entities[entity.index].components & .Velocity, "entity doesnt have Velocity");
-	return Velocity_Buff[entity.index];
+	#if RECS_ASSERT assert(xx entities[entity.index].components & .Health, "entity doesnt have Health");
+	return Health_Buff[entity.index];
 }
 
 
-type_get_component :: inline (_: Print) -> Component { return .Print; }
-type_update_buffer :: inline (e: Entity, x: Print) {
+type_get_component :: inline (_: Health) -> Component { return .Health; }
+type_update_buffer :: inline (e: Entity, x: Health) {
 	#if RECS_ASSERT assert(e.index < MAX_ENTITIES);
-	Print_Buff[e.index] = x;
+	Health_Buff[e.index] = x;
 }
 
-type_get_component :: inline (_: Position) -> Component { return .Position; }
-type_update_buffer :: inline (e: Entity, x: Position) {
-	#if RECS_ASSERT assert(e.index < MAX_ENTITIES);
-	Position_Buff[e.index] = x;
-}
-
-type_get_component :: inline (_: Velocity) -> Component { return .Velocity; }
-type_update_buffer :: inline (e: Entity, x: Velocity) {
-	#if RECS_ASSERT assert(e.index < MAX_ENTITIES);
-	Velocity_Buff[e.index] = x;
-}
-
-Position_Buff : [1000]Position = ---;
-Velocity_Buff : [1000]Velocity = ---;
+Health_Buff : [1000]Health = ---;

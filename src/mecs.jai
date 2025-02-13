@@ -44,40 +44,18 @@ GroupInfo  :: struct {
 
 groups                      : Table.Table(Component, GroupInfo);
 
-init_groups :: () {
-    Table.init(*groups);
+EventCallback               :: #type (entity: Entity, data: *void) -> bool;
+
+EventListener :: struct {
+    callback                : EventCallback;
+    data                    : *void;
 }
 
-register_group :: (mask: Component) {
-    info: GroupInfo;
-    info.mask = mask;
-
-    info.entities.count = 0;
-    info.entities.data = null;
-    info.entities.allocator = context.allocator;
-
-    Table.table_add(*groups, mask, info);
+EventSystem :: struct {
+    listeners               : Table.Table(u64, [..]EventListener);
 }
 
-update_group_membership :: (entity: Entity, old_components: Component, new_components: Component) {
-    for * entry, i: groups.entries {
-        if entry.hash < Table.FIRST_VALID_HASH continue;
-
-        was_member := (old_components & entry.value.mask) == entry.value.mask;
-        is_member := (new_components & entry.value.mask) == entry.value.mask;
-
-        if !was_member && is_member {
-            array_add(*entry.value.entities, entity);
-        } else if was_member && !is_member {
-            for entry.value.entities {
-                if it == entity {
-                    array_ordered_remove_by_index(*entry.value.entities, it_index);
-                    break;
-                }
-            }
-        }
-    }
-}
+event_system                : EventSystem;
 
 operator == :: inline (a: Entity, b: Entity) -> bool {
     return a.index == b.index && a.generation == b.generation;
@@ -106,6 +84,7 @@ init_recs :: inline ($max_entities := 1000, $max_components := 30, $assert := tr
     append(*b, "    entity_count = 0;\n");
     append(*b, "    for * entities_buffer it.generation = 0;\n");
     append(*b, "    init_groups();\n");
+    append(*b, "    init_event_system();\n");
     append(*b, "}\n\n");
     append(*b, "#scope_export\n");
 
@@ -309,6 +288,73 @@ iter_entities :: inline (components: ..Component) -> Entities {
     e: Entities = .{0};
     for components e.c |= it;
     return e;
+}
+
+init_groups :: () {
+    Table.init(*groups);
+}
+
+register_group :: (mask: Component) {
+    info: GroupInfo;
+    info.mask = mask;
+
+    info.entities.count = 0;
+    info.entities.data = null;
+    info.entities.allocator = context.allocator;
+
+    Table.table_add(*groups, mask, info);
+}
+
+update_group_membership :: (entity: Entity, old_components: Component, new_components: Component) {
+    for * entry, i: groups.entries {
+        if entry.hash < Table.FIRST_VALID_HASH continue;
+
+        was_member := (old_components & entry.value.mask) == entry.value.mask;
+        is_member := (new_components & entry.value.mask) == entry.value.mask;
+
+        if !was_member && is_member {
+            array_add(*entry.value.entities, entity);
+        } else if was_member && !is_member {
+            for entry.value.entities {
+                if it == entity {
+                    array_ordered_remove_by_index(*entry.value.entities, it_index);
+                    break;
+                }
+            }
+        }
+    }
+}
+
+init_event_system :: () {
+    Table.init(*event_system.listeners);
+}
+
+subscribe :: (event_id: u64, callback: EventCallback, data: *void = null) {
+    listeners := Table.table_find_pointer(*event_system.listeners, event_id);
+
+    if !listeners {
+        new_listeners: [..]EventListener;
+        array_add(*new_listeners, .{callback=callback, data=data});
+        Table.table_add(*event_system.listeners, event_id, new_listeners);
+        return;
+    }
+
+    array_add(listeners, .{callback=callback, data=data});
+}
+
+emit :: (event_id: u64, entity: Entity) -> bool {
+    listeners := Table.table_find_pointer(*event_system.listeners, event_id);
+    if !listeners return false;
+
+    handled := false;
+    for listeners.* {
+        if it.callback(entity, it.data) {
+            handled = true;
+            break;
+        }
+    }
+
+    return handled;
 }
 
 for_expansion :: (iter: Entities, body: Code, flags: For_Flags) #expand {

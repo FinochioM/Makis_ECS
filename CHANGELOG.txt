@@ -1,10 +1,9 @@
 v 0.1:
 IN PROGRESS ::
-
-IDEAS ::
 Simple event system:
  - Emit and listen.
 
+IDEAS ::
 Entity Hierarchy:
  - Parent -> Child.
 

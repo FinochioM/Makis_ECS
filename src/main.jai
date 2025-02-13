@@ -1,53 +1,34 @@
 #import "Math";
+#import "Basic";
 
 @init_recs();
 
-Print    :: @comp void;
-Position :: @comp Vector2;
-Velocity :: @comp Vector2;
+Health   :: @comp float32;
 
-@init_components(Print, Position, Velocity);
+@init_components(Health);
 
-printing_system :: inline (e: Entity) {
-    pos := entity_get(e, _Position);
-    print("%\n", pos);
+EVENT_DEATH :: 1;
+EVENT_DAMAGE :: 2;
+
+on_entity_death :: (entity: Entity, data: *void) -> bool {
+    print("Entity % died!\n", entity.index);
+    return true;
 }
 
-movement_system :: inline (e: Entity) {
-    pos := entity_get(e, _Position);
-    vel := entity_get(e, _Velocity);
-    pos.x += vel.x;
-    pos.y += vel.y;
-    entity_update(e, pos);
+on_entity_damaged :: (entity: Entity, data: *void) -> bool {
+    print("Entity % took damage!\n", entity.index);
+    return true;
 }
 
 main :: () {
     init_ecs();
-    e := create_entity();
 
-    entity_add(e, Position.{});
-    entity_add(e, Velocity.{1, 0});
-    entity_add(e, .Print);
+    subscribe(EVENT_DEATH, on_entity_death);
+    subscribe(EVENT_DAMAGE, on_entity_damaged);
 
-    e = create_entity();
+    entity := create_entity();
+    entity_add(entity, .Health);
 
-    entity_add(e, Position.{});
-    entity_add(e, Velocity.{0, 1});
-    entity_add(e, .Print);
-
-    e = create_entity();
-
-    entity_add(e, Position.{});
-    entity_add(e, .Print);
-
-    for 0..3 {
-        print("frame %:\n", it);
-        run_system(.Position | .Velocity, movement_system);
-        run_system(.Position | .Print, printing_system);
-        print("\n");
-    }
-
-    for iter_entities(.Position) {
-        entity_update(it, Position.{});
-    }
+    emit(EVENT_DAMAGE, entity);
+    emit(EVENT_DEATH, entity);
 }
