@@ -1,3 +1,44 @@
+// V_0.1 - 13/02/2025.
+// Test for the feature of "Component Grouping System".
+/*
+###############################################################################
+
+This file demonstrates the Component Grouping System functionality through 5 tests:
+
+Test 1 - Basic Group Creation
+    Shows how to create a group (Movement = Position + Velocity) and verify that
+    entities created with this group get all required components automatically.
+
+Test 2 - Group System Iteration
+    Verifies that systems only process entities that have all group components.
+    Creates 3 entities: 2 with Movement group, 1 with only Health.
+    Confirms system only processes the 2 Movement entities.
+
+Test 3 - Multiple Groups
+    Tests handling multiple groups simultaneously (Movement, PlayerMovement, RenderableMovement).
+    Verifies correct entity counts across different group systems.
+
+Test 4 - Component Removal
+    Tests dynamic group membership by removing a component (Velocity).
+    Shows that entity leaves Movement group when it loses required components.
+
+Test 5 - Dynamic Group Membership
+    Shows that entities join groups automatically when they gain the right
+    component combination, even when components are added individually.
+
+Expected Output:
+
+Test 1: Basic group creation... PASSED
+Test 2: Group system iteration... PASSED
+Test 3: Multiple groups... PASSED
+Test 4: Component removal... Entity components before removal: Position | Velocity
+Entity components after removal: Position
+PASSED
+Test 5: Group membership updates... PASSED
+###############################################################################
+
+*/
+
 #import "Math";
 #import "Basic";
 

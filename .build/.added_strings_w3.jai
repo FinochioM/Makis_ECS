@@ -6,52 +6,119 @@
 DEBUG :: false;
 
 //
-// String added via add_build_string() from A:/Desarrollos/makis_ecs/build.jai:29.
+// String added via add_build_string() from A:/Desarrollos/makis_ecs/build.jai:30.
 //
 #import "Math";
 #import "Basic";
 
 #insert #run init_recs();
 
-// init comps
 Player   :: #type,distinct void;
 Position :: #type,distinct Vector2;
 Velocity :: #type,distinct Vector2;
 Health   :: #type,distinct float32;
+Renderable :: #type,distinct void;
 
-#insert #run init_components(Player, Position, Velocity, Health);
+#insert #run init_components(Player, Position, Velocity, Health, Renderable);
 
-// start da big
-main :: () {
+Movement :: #run make_group(Position, Velocity);
+PlayerMovement :: #run make_group(Position, Velocity, Player);
+RenderableMovement :: #run make_group(Position, Renderable);
+
+entities_processed := 0;
+movement_count := 0;
+player_movement_count := 0;
+renderable_movement_count := 0;
+
+count_system :: (e: Entity) { entities_processed += 1; }
+count_movement :: (e: Entity) { movement_count += 1; }
+count_player_movement :: (e: Entity) { player_movement_count += 1; }
+count_renderable_movement :: (e: Entity) { renderable_movement_count += 1; }
+
+test_groups :: () {
     init_ecs();
 
-    print("Creating first entity...\n");
-    e1 := create_entity();
-    print("First entity - Index: %, Generation: %\n", e1.index, e1.generation);
+    // ########################################################################################
+    print("Test 1: Basic group creation... ");
+    register_group(Movement);
+    e1 := create_entity(Movement);
+    assert(entity_have(e1, .Position));
+    assert(entity_have(e1, .Velocity));
+    print("PASSED\n");
 
-    entity_add(e1, Position.{10, 20});
+    // ########################################################################################
+    print("Test 2: Group system iteration... ");
+    entities_processed = 0;
 
-    old_index := e1.index;
-    old_generation := e1.generation;
+    e2 := create_entity(Movement);
+    e3 := create_entity();
+    entity_add(e3, .Health);
 
-    print("Removing Entity...\n");
-    remove_entity(e1);
+    run_system(Movement, count_system);
+    assert(entities_processed == 2, "Expected 2 entities to be processed, got %", entities_processed);
+    print("PASSED\n");
 
-    print("Creating second entity...\n");
-    e2 := create_entity();
-    print("Second entity - Index: %, Generation: %\n", e2.index, e2.generation);
+    // ########################################################################################
+    print("Test 3: Multiple groups... ");
+    register_group(PlayerMovement);
+    register_group(RenderableMovement);
 
-    print("Recycling verification:\n");
-    print("SAME INDEX? %\n", e2.index == old_index);
-    print("DIFFERENT GENERATION? %\n", e2.generation != old_generation);
+    e4 := create_entity(PlayerMovement);
+    assert(entity_have(e4, .Player));
+    assert(entity_have(e4, .Position));
+    assert(entity_have(e4, .Velocity));
 
-    print("\nTrying to use old entity reference:\n");
+    movement_count = 0;
+    player_movement_count = 0;
+    renderable_movement_count = 0;
 
-    if entity_have(e1, .Position) {
-        print("ERROR: Should not reach this code!\n");
-    } else {
-        print("Correctly detected invalid entity!\n");
-    }
+    run_system(Movement, count_movement);
+    run_system(PlayerMovement, count_player_movement);
+    run_system(RenderableMovement, count_renderable_movement);
+
+    assert(movement_count == 3, "Expected 3 movement entities, got %", movement_count);
+    assert(player_movement_count == 1, "Expected 1 player movement entity, got %", player_movement_count);
+    assert(renderable_movement_count == 0, "Expected 0 renderable movement entities, got %", renderable_movement_count);
+    print("PASSED\n");
+
+    // ########################################################################################
+
+    print("Test 4: Component removal... ");
+    old_components := entity_get(e1);
+    print("Entity components before removal: %\n", old_components);
+
+    entity_remove(e1, .Velocity);
+    new_components := entity_get(e1);
+    print("Entity components after removal: %\n", new_components);
+
+    movement_count = 0;
+    run_system(Movement, count_movement);
+    assert(movement_count == 2, "Expected 2 movement entities after removal, got %", movement_count);
+    print("PASSED\n");
+
+    // ########################################################################################
+
+    print("Test 5: Group membership updates... ");
+    e5 := create_entity();
+    entity_add(e5, .Position);
+    entity_add(e5, .Velocity);
+    entity_add(e5, .Renderable);
+
+    movement_count = 0;
+    renderable_movement_count = 0;
+
+    run_system(Movement, count_movement);
+    run_system(RenderableMovement, count_renderable_movement);
+
+    assert(movement_count == 3);
+    assert(renderable_movement_count == 1);
+    print("PASSED\n");
+
+    print("\nAll group tests passed successfully!\n");
+}
+
+main :: () {
+    test_groups();
 }
 
 //
@@ -70,18 +137,20 @@ init_ecs :: () {
     array_reserve(*free_indices, MAX_ENTITIES);
     entity_count = 0;
     for * entities_buffer it.generation = 0;
+    init_groups();
 }
 
 #scope_export
 
 //
-// #insert text. Generated from A:/Desarrollos/makis_ecs/src/recs.jai:74.
+// #insert text. Generated from A:/Desarrollos/makis_ecs/src/mecs.jai:119.
 //
-sizes : [4]u32 : .[
+sizes : [5]u32 : .[
 	size_of(Player),
 	size_of(Position),
 	size_of(Velocity),
 	size_of(Health),
+	size_of(Renderable),
 ];
 
 //
@@ -92,12 +161,14 @@ Component :: enum_flags u32 {
 	Position;
 	Velocity;
 	Health;
+	Renderable;
 }
 
 _Player :: Player;
 _Position :: #run -> Position { x: Position; return x; };
 _Velocity :: #run -> Velocity { x: Velocity; return x; };
 _Health :: #run -> Health { x: Health; return x; };
+_Renderable :: Renderable;
 
 entity_get :: inline (entity: Entity, $component: Player) -> Player {
 	#if RECS_ASSERT assert(entity.index < MAX_ENTITIES);
@@ -119,6 +190,12 @@ entity_get :: inline (entity: Entity, $component: Health) -> Health {
 	#if RECS_ASSERT assert(entity.index < MAX_ENTITIES);
 	#if RECS_ASSERT assert(xx entities[entity.index].components & .Health, "entity doesnt have Health");
 	return Health_Buff[entity.index];
+}
+entity_get :: inline (entity: Entity, $component: Renderable) -> Renderable {
+	#if RECS_ASSERT assert(entity.index < MAX_ENTITIES);
+	#if RECS_ASSERT assert(xx entities[entity.index].components & .Renderable, "entity doesnt have Renderable");
+	ret: Renderable;
+	return ret;
 }
 
 
@@ -146,6 +223,31 @@ type_update_buffer :: inline (e: Entity, x: Health) {
 	Health_Buff[e.index] = x;
 }
 
+type_get_component :: inline (_: Renderable) -> Component { return .Renderable; }
+type_update_buffer :: inline (e: Entity, x: Renderable) {
+	#if RECS_ASSERT assert(e.index < MAX_ENTITIES);
+	Renderable_Buff[e.index] = x;
+}
+
 Position_Buff : [1000]Position = ---;
 Velocity_Buff : [1000]Velocity = ---;
 Health_Buff : [1000]Health = ---;
+
+//
+// #insert text. Generated from A:/Desarrollos/makis_ecs/src/mecs.jai:335.
+//
+result |= .Position;
+result |= .Velocity;
+
+//
+// #insert text. Generated from A:/Desarrollos/makis_ecs/src/mecs.jai:335.
+//
+result |= .Position;
+result |= .Velocity;
+result |= .Player;
+
+//
+// #insert text. Generated from A:/Desarrollos/makis_ecs/src/mecs.jai:335.
+//
+result |= .Position;
+result |= .Renderable;

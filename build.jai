@@ -7,7 +7,7 @@
     args := options.compile_time_command_line;
     release := array_find(args, "release");
 
-    options.output_executable_name = "recs";
+    options.output_executable_name = "mecs";
 
     if release set_optimization(*options, .VERY_OPTIMIZED, false);
     set_build_options(options, w);
@@ -25,9 +25,10 @@
     main = replace(main, "@comp()", "#type,distinct void");
     main = replace(main, "@component", "#type,distinct");
     main = replace(main, "@comp", "#type,distinct");
+    main = replace(main, "@group", "#run make_group");
 
     add_build_string(main, w);
-    add_build_file("src/recs.jai", w);
+    add_build_file("src/mecs.jai", w);
     compiler_end_intercept(w);
 }
 

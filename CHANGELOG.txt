@@ -1,5 +1,14 @@
 v 0.1:
+IN PROGRESS ::
 
+IDEAS ::
+Simple event system:
+ - Emit and listen.
+
+Entity Hierarchy:
+ - Parent -> Child.
+
+DONE ::
 Entities recycling system:
  - Keep track of deleted entities. Maybe have a list for this.
  - Reuse the IDs of these deleted entities when creating new ones.
@@ -11,3 +20,12 @@ Entities recycling system:
  - Creates entities with the recycling logic.
  - Removes entities updating the generations.
 
+ Groups:
+ - A way to define combinations of components. DONE
+ - Makes it easier to create entities with "standard" component groups. DONE
+ - High performance when querying multiple components.
+
+ - Component grouping via @group
+ - Automatic group membership management
+ - Efficient querying through run_system
+ - Dynamic group updates when components change
