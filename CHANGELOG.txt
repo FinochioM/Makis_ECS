@@ -1,0 +1,13 @@
+v 0.1:
+
+Entities recycling system:
+ - Keep track of deleted entities. Maybe have a list for this.
+ - Reuse the IDs of these deleted entities when creating new ones.
+ - Add generations to differentiate the entities.
+
+ - Proper Entity Structure.
+ - Entity Slots to track generations.
+ - Some sort of recycling management.
+ - Creates entities with the recycling logic.
+ - Removes entities updating the generations.
+
