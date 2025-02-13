@@ -7,7 +7,6 @@ Health   :: @comp float32;
 
 @init_components(Health);
 
-EVENT_DEATH :: 1;
 EVENT_DAMAGE :: 2;
 
 on_entity_death :: (entity: Entity, data: *void) -> bool {
@@ -23,12 +22,10 @@ on_entity_damaged :: (entity: Entity, data: *void) -> bool {
 main :: () {
     init_ecs();
 
-    subscribe(EVENT_DEATH, on_entity_death);
     subscribe(EVENT_DAMAGE, on_entity_damaged);
 
     entity := create_entity();
     entity_add(entity, .Health);
 
     emit(EVENT_DAMAGE, entity);
-    emit(EVENT_DEATH, entity);
 }
