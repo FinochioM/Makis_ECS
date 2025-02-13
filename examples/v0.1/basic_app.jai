@@ -22,7 +22,6 @@ movement_system :: inline (e: Entity) {
 }
 
 main :: () {
-    init_ecs();
     e := create_entity();
 
     entity_add(e, Position.{});
