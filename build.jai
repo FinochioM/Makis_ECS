@@ -25,6 +25,7 @@
     main = replace(main, "@comp()", "#type,distinct void");
     main = replace(main, "@component", "#type,distinct");
     main = replace(main, "@comp", "#type,distinct");
+    main = replace(main, "@comp struct", "#type,distinct struct");
     main = replace(main, "@group", "#run make_group");
 
     add_build_string(main, w);

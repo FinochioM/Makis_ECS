@@ -1,3 +1,51 @@
+// V_0.1 - 13/02/2025.
+// Test for the feature of "Component Interaction and Event System".
+/*
+###############################################################################
+
+This file demonstrates a practical implementation of the ECS event system using
+a health and damage-over-time (DoT) system as an example. It shows how components
+can interact with each other and how events can be used to handle state changes.
+
+Key Features Demonstrated:
+
+1. Structured Components
+   - Health component with current and maximum values
+   - DamageOverTime component with damage rate and duration
+   - Shows how to properly structure numeric components
+
+2. Component Interaction
+   - Health component being modified by damage and healing functions
+   - DamageOverTime component affecting Health over multiple ticks
+   - Demonstrates proper component access using _ComponentName syntax
+
+3. Event System Integration
+   - Death event triggered when health reaches 0
+   - Event subscription and handling
+   - Shows how systems can react to component state changes
+
+4. Utility Functions
+   - apply_damage: Handles damage application and death check
+   - heal: Handles health restoration with max cap
+   - process_dot: Manages DoT effect over time
+
+Expected Output:
+Initial health: 100
+Health after 30 damage: 70
+Health after healing 20: 90
+
+Tick 1:
+Health after DoT tick: 80
+
+Tick 2:
+Health after DoT tick: 70
+
+Tick 3:
+Health after DoT tick: 60
+
+###############################################################################
+*/
+
 #import "Math";
 #import "Basic";
 
