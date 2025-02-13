@@ -1,7 +1,5 @@
 v 0.1:
 IN PROGRESS ::
-Simple event system:
- - Emit and listen.
 
 IDEAS ::
 Entity Hierarchy:
@@ -28,3 +26,6 @@ Entities recycling system:
  - Automatic group membership management
  - Efficient querying through run_system
  - Dynamic group updates when components change
+
+Simple event system:
+ - Emit and listen.
