@@ -1,3 +1,15 @@
+// V_0.1 - 13/02/2025.
+// Test to show a basic application using the library.
+/*
+###############################################################################
+
+This file just shows a really basic application using the library.
+This file could be a good starting point for most projects, mostly because it
+just shows the basics about how the library works.
+
+###############################################################################
+*/
+
 #import "Math";
 
 @init_recs();
@@ -22,6 +34,7 @@ movement_system :: inline (e: Entity) {
 }
 
 main :: () {
+    init_ecs();
     e := create_entity();
 
     entity_add(e, Position.{});
