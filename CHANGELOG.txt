@@ -1,11 +1,36 @@
 v 0.2:
-
 IN PROGRESS ::
+Component Tags:
+ - Allow components to be marked as tags (zero-size)
+ - Optimize storage and operations for tag components
+ - This would improve memory usage for flag-like components
 
 IDEAS ::
+Component Queries and Filters:
+ - Add a more flexible query system that allows filtering entities based on component values
+ - For example, querying all entities with Health below 50% or Position within a certain range
+ - This would be useful for many game scenarios while keeping the core simple
+
+Deferred Operations:
+ - Add a simple command buffer for entity/component operations
+ - This would prevent issues when modifying entities during system iteration
+
+Simple Pool Allocator:
+ - Add basic component pooling to reduce memory fragmentation
+ - Keep it simple - just pre-allocate chunks for components
+ - This would improve performance without adding much complexity
+
+System Dependencies:
+ - Add basic system ordering through simple dependencies
+ - This would help manage system execution order without a complex scheduler
+
+Debug Tooling::
+ - Add simple debug views of entity/component state
+ - Component statistics (count, memory usage)
+ - Entity hierarchy visualization
+ - This would help with development without adding runtime overhead
 
 v 0.1:
-
 Entities recycling system:
  - Keep track of deleted entities. Maybe have a list for this.
  - Reuse the IDs of these deleted entities when creating new ones.
