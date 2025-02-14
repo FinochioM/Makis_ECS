@@ -1,3 +1,51 @@
+// V_0.1 - 13/02/2025
+// Example demonstrating entity hierarchy with damage propagation and events.
+/*
+###############################################################################
+
+This example showcases a more complex use of the ECS library, featuring a combat
+scenario with hierarchical entity relationships. It demonstrates:
+- Parent-child entity relationships between a boss and its minions
+- Health and damage-over-time (DoT) component usage
+- Event system for death handling
+- Damage propagation from parent to child entities
+- Status tracking and reporting
+
+The scenario involves a boss entity with multiple minions. When the boss takes
+damage over time and dies, it affects its minion entities. This pattern is common
+in games where destroying a parent object has consequences for its children.
+
+Expected result:
+
+Initial status:
+Status of 'Boss': Health: 100/100
+Status of 'Minion 1': Health: 50/50
+Status of 'Minion 2': Health: 30/30
+Status of 'Minion 3': Health: 40/40
+Applying DoT to boss...
+Tick 1:
+Status of 'Boss': Health: 60/100
+Status of 'Minion 1': Health: 50/50
+Status of 'Minion 2': Health: 30/30
+Status of 'Minion 3': Health: 40/40
+Tick 2:
+Status of 'Boss': Health: 20/100
+Status of 'Minion 1': Health: 50/50
+Status of 'Minion 2': Health: 30/30
+Status of 'Minion 3': Health: 40/40
+Tick 3:
+Entity 'Boss' has died!
+Child 'Minion 1' takes 25 damage from parent's death
+Child 'Minion 2' takes 25 damage from parent's death
+Child 'Minion 3' takes 25 damage from parent's death
+Status of 'Boss': Health: 0/100
+Status of 'Minion 1': Health: 25/50
+Status of 'Minion 2': Health: 5/30
+Status of 'Minion 3': Health: 15/40
+
+###############################################################################
+*/
+
 #import "Math";
 #import "Basic";
 

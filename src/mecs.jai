@@ -57,6 +57,10 @@ EventSystem :: struct {
 
 event_system                : EventSystem;
 
+ParentComponent :: struct {
+    entity                  : Entity;
+}
+
 operator == :: inline (a: Entity, b: Entity) -> bool {
     return a.index == b.index && a.generation == b.generation;
 }
@@ -401,4 +405,42 @@ make_group :: inline(components: ..Component) -> Component {
 
 entity_matches_group :: inline(entity: Entity, group: Component) -> bool {
     return (entities[entity.index].components & group) == group;
+}
+
+get_children :: (parent: Entity) -> [..]Entity {
+    children: [..]Entity;
+
+    for 0..entity_count - 1 {
+        potential_child := Entity.{xx it, entities[it].generation};
+        if entity_have(potential_child, .ParentComponent) {
+            parent_comp := entity_get(potential_child, _ParentComponent);
+            if parent_comp.entity == parent {
+                array_add(*children, potential_child);
+            }
+        }
+    }
+
+    return children;
+}
+
+get_parent :: inline (entity: Entity) -> Entity {
+    if entity_have(entity, .ParentComponent) {
+        return entity_get(entity, _ParentComponent).entity;
+    }
+    return INVALID_ENTITY;
+}
+
+set_parent :: inline (child: Entity, parent: Entity) {
+    if parent.is_valid(parent) {
+        entity_add(child, ParentComponent.{parent});
+    } else {
+        entity_remove(child, .ParentComponent);
+    }
+}
+
+destroy_with_children :: (entity: Entity) {
+    children := get_children(entity);
+    for children destroy_with_children(it);
+    array_free(children);
+    remove_entity(entity);
 }

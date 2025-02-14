@@ -1,11 +1,11 @@
-v 0.1:
+v 0.2:
+
 IN PROGRESS ::
 
 IDEAS ::
-Entity Hierarchy:
- - Parent -> Child.
 
-DONE ::
+v 0.1:
+
 Entities recycling system:
  - Keep track of deleted entities. Maybe have a list for this.
  - Reuse the IDs of these deleted entities when creating new ones.
@@ -17,7 +17,7 @@ Entities recycling system:
  - Creates entities with the recycling logic.
  - Removes entities updating the generations.
 
- Groups:
+Groups:
  - A way to define combinations of components. DONE
  - Makes it easier to create entities with "standard" component groups. DONE
  - High performance when querying multiple components.
@@ -29,3 +29,6 @@ Entities recycling system:
 
 Simple event system:
  - Emit and listen.
+
+Entity Hierarchy:
+ - Parent -> Child.
