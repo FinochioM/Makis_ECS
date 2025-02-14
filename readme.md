@@ -51,6 +51,8 @@ You can fin the examples in the <a href="#readme-top">Examples</a> folder, insid
 - v_0.1
     - Added "Groups System". (See examples in ```examples/v0.1/groups_system.jai```)
     - Added "Entity Recycling". (See examples in ```examples/v0.1/entity_recycling.jai```)
+    - Added "Events System". (See examples in ```examples/v0.1/evenst_system.jai``` and ```examples/v0.1/events_system_advanced.jai```)
+    - Added "Simple Hierarchy". (See examples in ```examples/v0.1/basic_hierarchy.jai``` and ```examples/v0.1/advanced_hierarchy.jai```)
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
