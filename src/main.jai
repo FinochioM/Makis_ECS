@@ -43,7 +43,6 @@ apply_damage :: (entity: Entity, amount: float32) {
     health := entity_get(entity, _Health);
     health.value = max(cast(float32)0, health.value - amount);
     entity_update(entity, health);
-
     if health.value <= 0 emit(EVENT_DEATH, entity);
 }
 
